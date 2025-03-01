@@ -1,0 +1,348 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quiz Spider-Man</title>
+    <style>
+        /* Général */
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f4;
+            color: #333;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            text-align: center;
+        }
+
+        .quiz-container {
+            width: 100%;
+            max-width: 600px;
+            background-color: #fff;
+            box-shadow: 0 0 15px rgba(0, 0, 0, 0.1);
+            border-radius: 8px;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .question-container {
+            width: 100%;
+        }
+
+        .question {
+            font-size: 20px;
+            margin-bottom: 20px;
+            font-weight: bold;
+            color: #333;
+        }
+
+        .answers {
+            margin-bottom: 30px;
+            text-align: left;
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start;
+        }
+
+        .answers label {
+            margin-bottom: 12px;
+            cursor: pointer;
+            font-size: 18px;
+            color: #333;
+            transition: background-color 0.3s ease;
+            padding: 8px;
+            border-radius: 5px;
+        }
+
+        .answers input[type="radio"] {
+            margin-right: 10px;
+        }
+
+        .answers label:hover {
+            background-color: #f1f1f1;
+        }
+
+        button {
+            padding: 10px 20px;
+            background-color: #007bff;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+            transition: background-color 0.3s ease;
+        }
+
+        button:disabled {
+            background-color: #aaa;
+            cursor: not-allowed;
+        }
+
+        button:hover:not(:disabled) {
+            background-color: #0056b3;
+        }
+
+        .result {
+            display: none;
+            font-size: 20px;
+            text-align: center;
+            color: #333;
+            font-weight: bold;
+            margin-top: 30px;
+        }
+
+        .intro-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .intro-image {
+            max-width: 100%;
+            height: auto;
+            margin-bottom: 20px;
+        }
+
+        .intro-text {
+            font-size: 22px;
+            font-weight: bold;
+            margin-bottom: 20px;
+        }
+
+        /* Mobile responsif */
+        @media (max-width: 600px) {
+            .quiz-container {
+                padding: 15px;
+            }
+
+            .question {
+                font-size: 18px;
+            }
+
+            .answers label {
+                font-size: 16px;
+            }
+
+            button {
+                font-size: 14px;
+                padding: 8px 16px;
+            }
+
+            .intro-text {
+                font-size: 18px;
+            }
+        }
+    </style>
+</head>
+<body>
+
+<div class="quiz-container" id="intro-screen">
+    <div class="intro-container">
+        <img class="intro-image" src="https://m.media-amazon.com/images/M/MV5BYWRkN2M1NmQtZjhjMi00ODFjLTk2ODctYWJiOWNkNjg1OGY4XkEyXkFqcGc@._V1_FMjpg_UX1000_.jpg" alt="Spider-Man" />
+        <div class="intro-text">Bienvenue dans le Quiz Spider-Man !</div>
+        <div>Découvre quel méchant ou héros de Spider-Man tu es. Réponds aux questions et laisse-nous deviner ton alter ego !</div>
+        <button id="start-btn">Démarrer le Quiz</button>
+    </div>
+</div>
+
+<div class="quiz-container" id="quiz-screen" style="display:none;">
+    <div class="question-container">
+        <div class="question" id="question-text">Question 1</div>
+        <div class="answers" id="answers-container">
+            <label><input type="radio" name="answer" value="A"> A</label>
+            <label><input type="radio" name="answer" value="B"> B</label>
+            <label><input type="radio" name="answer" value="C"> C</label>
+            <label><input type="radio" name="answer" value="D"> D</label>
+        </div>
+        <button id="next-btn">Suivant</button>
+    </div>
+
+    <div class="result" id="result-container"></div>
+</div>
+
+<script>
+    const questions = [
+        {
+            question: "Préfères-tu agir seul ou en équipe ?",
+            answers: [
+                "Seul, je suis un loup solitaire.",
+                "J’ai besoin d’alliés, mais je reste dominant.",
+                "J’aime manipuler les autres dans l’ombre.",
+                "Peu importe, tant que je peux semer le chaos."
+            ]
+        },
+        {
+            question: "Quel est ton principal atout ?",
+            answers: [
+                "Ma force surhumaine.",
+                "Mon intelligence et mes inventions.",
+                "Mon charisme et ma capacité à duper.",
+                "Mon imprévisibilité et ma cruauté."
+            ]
+        },
+        {
+            question: "Comment affrontes-tu tes ennemis ?",
+            answers: [
+                "En les écrasant avec ma puissance brute.",
+                "En leur tendant un piège ingénieux.",
+                "En les manipulant et les rendant fous.",
+                "En les traquant et en jouant avec eux avant d’attaquer."
+            ]
+        },
+        {
+            question: "Quelle est ta plus grande motivation ?",
+            answers: [
+                "La vengeance contre un ennemi.",
+                "Le pouvoir et la domination.",
+                "La reconnaissance et la peur que j’inspire.",
+                "Le chaos et la destruction pure."
+            ]
+        },
+        {
+            question: "Si tu devais avoir un pouvoir, lequel choisirais-tu ?",
+            answers: [
+                "Une force et une endurance surhumaines.",
+                "Une intelligence géniale et des armes ultra-perfectionnées.",
+                "Le pouvoir de tromper la réalité et manipuler les autres.",
+                "Une transformation complète en monstre destructeur."
+            ]
+        },
+        {
+            question: "Comment décrirais-tu ton style de combat ?",
+            answers: [
+                "Bestial et destructeur.",
+                "Stratégique et technologique.",
+                "Trompeur et théâtral.",
+                "Impitoyable et sanguinaire."
+            ]
+        },
+        {
+            question: "Quel type d’apparence préfères-tu ?",
+            answers: [
+                "Une créature monstrueuse.",
+                "Une combinaison high-tech impressionnante.",
+                "Un déguisement extravagant qui joue avec les esprits.",
+                "Un look effrayant, fait pour inspirer la terreur."
+            ]
+        },
+        {
+            question: "Que fais-tu après une victoire ?",
+            answers: [
+                "Je détruis tout pour asseoir ma suprématie.",
+                "J’analyse la situation et prépare la suite.",
+                "Je laisse une mise en scène pour marquer les esprits.",
+                "Je ris aux éclats et laisse un carnage derrière moi."
+            ]
+        },
+        {
+            question: "Quel est ton plus grand défaut ?",
+            answers: [
+                "Mon impulsivité, je ne réfléchis pas toujours.",
+                "Mon arrogance, je sous-estime parfois mes ennemis.",
+                "Mon goût du spectacle, qui peut me distraire.",
+                "Ma soif de destruction, qui me rend incontrôlable."
+            ]
+        },
+        {
+            question: "Comment aimerais-tu être perçu par les autres ?",
+            answers: [
+                "Comme une force inarrêtable.",
+                "Comme un génie redouté de tous.",
+                "Comme un être insaisissable et mystérieux.",
+                "Comme une légende terrifiante."
+            ]
+        }
+    ];
+
+    let currentQuestionIndex = 0;
+    let answers = { A: 0, B: 0, C: 0, D: 0 };
+
+    // Fonction pour afficher l'écran d'introduction
+    document.getElementById("start-btn").addEventListener("click", function() {
+        document.getElementById("intro-screen").style.display = "none";
+        document.getElementById("quiz-screen").style.display = "block";
+        displayQuestion();
+    });
+
+    function displayQuestion() {
+        const question = questions[currentQuestionIndex];
+        document.getElementById("question-text").textContent = question.question;
+        const answersContainer = document.getElementById("answers-container");
+        answersContainer.innerHTML = "";
+        question.answers.forEach((answer, index) => {
+            const label = document.createElement("label");
+            label.innerHTML = `<input type="radio" name="answer" value="${String.fromCharCode(65 + index)}"> ${answer}`;
+            answersContainer.appendChild(label);
+        });
+        document.getElementById("next-btn").disabled = true;
+    }
+
+    function nextQuestion() {
+    const selectedAnswer = document.querySelector('input[name="answer"]:checked');
+    if (selectedAnswer) {
+        const answer = selectedAnswer.value;
+        answers[answer]++;
+        currentQuestionIndex++;
+        if (currentQuestionIndex < questions.length) {
+            displayQuestion();
+        } else {
+            showResult();  // Montre les résultats à la fin
+        }
+    }
+}
+
+
+    function showResult() {
+    let result = "";
+    let maxAnswer = Object.keys(answers).reduce((a, b) => answers[a] > answers[b] ? a : b);
+    
+    // Cas particuliers
+    if (answers.A > answers.D && answers.D > 0) {
+        result = "Tu es L’Homme-Sable ! Fort, presque indestructible, mais parfois plus nuancé que les autres criminels.";
+    } else if (answers.B > answers.A && answers.A > 0) {
+        result = "Tu es Le Bouffon Vert ! Intelligent mais aussi fou, tu combines gadgets et chaos total.";
+    } else if (answers.C > answers.B && answers.B > 0) {
+        result = "Tu es Le Vautour ! Stratège et rusé, tu attaques toujours au bon moment pour frapper fort.";
+    } else if (answers.D > answers.C && answers.C > 0) {
+        result = "Tu es Venom ! Tu as un côté brutal et dangereux, mais tu peux parfois lutter contre ta propre noirceur.";
+    } else if (answers.A > answers.C && answers.C > 0) {
+        result = "Tu es Kraven le Chasseur ! Un prédateur méthodique, toujours à la recherche du défi ultime.";
+    } else {
+        // Résultats par défaut
+        switch (maxAnswer) {
+            case "A":
+                result = "Tu es Le Lézard ! Un scientifique transformé en monstre, tu es une bête de puissance incontrôlable.";
+                break;
+            case "B":
+                result = "Tu es Docteur Octopus ! Un génie mégalomane, tes inventions et ton intellect sont tes armes ultimes.";
+                break;
+            case "C":
+                result = "Tu es Mysterio ! Maître des illusions et de la manipulation, personne ne sait jamais ce qui est vrai avec toi.";
+                break;
+            case "D":
+                result = "Tu es Carnage ! Une créature de chaos et de destruction, tu ne vis que pour semer la terreur.";
+                break;
+        }
+    }
+
+    document.getElementById("result-container").textContent = result;
+    document.getElementById("result-container").style.display = "block";
+    document.querySelector(".question-container").style.display = "none";
+}
+
+
+    document.getElementById("next-btn").addEventListener("click", nextQuestion);
+
+    document.addEventListener("change", () => {
+        document.getElementById("next-btn").disabled = !document.querySelector('input[name="answer"]:checked');
+    });
+</script>
+
+</body>
+</html>
